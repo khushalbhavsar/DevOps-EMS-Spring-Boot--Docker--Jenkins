@@ -1,0 +1,40 @@
+stages:
+  - build
+  - test
+  - docker
+
+variables:
+  MAVEN_CLI_OPTS: "-B -e -V"
+
+cache:
+  paths:
+    - .m2/repository
+
+build:
+  image: maven:3.9.3-eclipse-temurin-17
+  stage: build
+  script:
+    - mvn $MAVEN_CLI_OPTS -DskipTests clean package
+  artifacts:
+    paths:
+      - target/*.jar
+
+test:
+  image: maven:3.9.3-eclipse-temurin-17
+  stage: test
+  script:
+    - mvn $MAVEN_CLI_OPTS test
+
+docker-build:
+  image: docker:24.0.0
+  services:
+    - docker:dind
+  stage: docker
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+  script:
+    - docker build -t $CI_REGISTRY_IMAGE:$CI_COMMIT_SHORT_SHA .
+    - echo "To push the image, configure CI_REGISTRY and credentials in GitLab settings."
+  only:
+    - main

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1>Employee Management System</h1>
+            <p>Manage your employees efficiently</p>
+        </header>
+
+        <div class="content">
+            <!-- Employee Form -->
+            <div class="form-section">
+                <h2>Add/Edit Employee</h2>
+                <form id="employeeForm">
+                    <input type="hidden" id="employeeId">
+                    <div class="form-group">
+                        <label for="firstName">First Name:</label>
+                        <input type="text" id="firstName" name="firstName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="lastName">Last Name:</label>
+                        <input type="text" id="lastName" name="lastName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email:</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role:</label>
+                        <input type="text" id="role" name="role" required>
+                    </div>
+                    <div class="form-buttons">
+                        <button type="submit" id="submitBtn">Add Employee</button>
+                        <button type="button" id="cancelBtn" onclick="clearForm()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Employee List -->
+            <div class="list-section">
+                <h2>Employee List</h2>
+                <div class="table-controls">
+                    <button onclick="loadEmployees()" class="refresh-btn">Refresh List</button>
+                    <input type="text" id="searchInput" placeholder="Search employees..." onkeyup="filterEmployees()">
+                </div>
+                <div class="table-container">
+                    <table id="employeeTable">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>First Name</th>
+                                <th>Last Name</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="employeeTableBody">
+                            <!-- Employee data will be loaded here -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Status Messages -->
+        <div id="statusMessage" class="status-message"></div>
+
+        <!-- Loading Spinner -->
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading...</p>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>

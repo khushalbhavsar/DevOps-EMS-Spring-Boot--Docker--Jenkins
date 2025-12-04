@@ -68,25 +68,28 @@ pipeline {
      * STAGE 4: DOCKER IMAGE CREATION
      * Builds Docker container image from the compiled JAR file
      * Creates both versioned and latest tags for deployment flexibility
+     * RUNS ON: Local machine (requires 'local' label on Jenkins node)
      */
     stage('Docker Build') {
+      agent { label 'local' }  // Execute on local machine with 'local' label
+      
       steps {
         script {
-          echo "Building Docker image..."
+          echo "Building Docker image on local machine..."
           
           // Clean up any existing images to prevent conflicts
-          sh "docker rmi ${REGISTRY_IMAGE}:${IMAGE_TAG} || true"
-          sh "docker rmi ${REGISTRY_IMAGE}:latest || true"
+          bat "docker rmi ${REGISTRY_IMAGE}:${IMAGE_TAG} || exit 0"
+          bat "docker rmi ${REGISTRY_IMAGE}:latest || exit 0"
           
           // Build new Docker image using Dockerfile in project root
           // Tags with both build-specific version and 'latest'
-          sh "docker build -t ${REGISTRY_IMAGE}:${IMAGE_TAG} ."
-          sh "docker tag ${REGISTRY_IMAGE}:${IMAGE_TAG} ${REGISTRY_IMAGE}:latest"
+          bat "docker build -t ${REGISTRY_IMAGE}:${IMAGE_TAG} ."
+          bat "docker tag ${REGISTRY_IMAGE}:${IMAGE_TAG} ${REGISTRY_IMAGE}:latest"
           
           // Verify images were created successfully
-          sh "docker images | grep ${IMAGE_NAME}"
+          bat "docker images | findstr ${IMAGE_NAME}"
           
-          echo "✅ Docker image built successfully!"
+          echo "✅ Docker image built successfully on local machine!"
         }
       }
     }
@@ -95,32 +98,35 @@ pipeline {
      * STAGE 5: CONTAINER INTEGRATION TESTING
      * Runs the Docker container and performs health checks to ensure
      * the application starts correctly and is accessible
+     * RUNS ON: Local machine (requires 'local' label on Jenkins node)
      */
     stage('Docker Test Run') {
+      agent { label 'local' }  // Execute on local machine with 'local' label
+      
       steps {
         script {
-          echo "Running container for test..."
+          echo "Running container for test on local machine..."
 
           // Clean up any existing test containers
-          sh "docker stop employee-management-test || true"
-          sh "docker rm employee-management-test || true"
+          bat "docker stop employee-management-test || exit 0"
+          bat "docker rm employee-management-test || exit 0"
 
           // Start container in detached mode for testing
           // Maps port 8080 from container to host port 8080
-          sh "docker run -d --name employee-management-test -p 8080:8080 ${REGISTRY_IMAGE}:${IMAGE_TAG}"
+          bat "docker run -d --name employee-management-test -p 8080:8080 ${REGISTRY_IMAGE}:${IMAGE_TAG}"
 
           // Wait for Spring Boot application to fully start
           echo "Waiting for application to start..."
           sleep 45
 
           // Print container logs for debugging if issues occur
-          sh "docker logs employee-management-test || true"
+          bat "docker logs employee-management-test || exit 0"
 
           // Perform health check to verify application is running
           // Note: Requires Spring Boot Actuator to be enabled
-          sh "curl -f http://localhost:8080/actuator/health || (echo 'Health Check Failed!' && exit 1)"
+          bat "curl -f http://localhost:8080/actuator/health || (echo Health Check Failed! && exit 1)"
 
-          echo "Container test passed!"
+          echo "Container test passed on local machine!"
         }
       }
     }
@@ -129,15 +135,18 @@ pipeline {
      * STAGE 6: DOCKER HUB DEPLOYMENT
      * Pushes the built Docker images to Docker Hub registry
      * Makes images available for production deployment
+     * RUNS ON: Local machine (requires 'local' label on Jenkins node)
      */
     stage('Docker Push') {
+      agent { label 'local' }  // Execute on local machine with 'local' label
+      
       // Conditional execution - currently always runs (return true)
       // Can be modified to run only on specific branches or conditions
       when { expression { return true } }
       
       steps {
         script {
-          echo "🚀 Pushing images to Docker Hub..."
+          echo "🚀 Pushing images to Docker Hub from local machine..."
           
           // Use Jenkins credentials for secure Docker Hub authentication
           withCredentials([usernamePassword(credentialsId: 'docker-registry-credentials',
@@ -146,20 +155,20 @@ pipeline {
             
             // Authenticate with Docker Hub
             echo "🔐 Logging in to Docker Hub as ${DOCKER_USERNAME}..."
-            sh 'echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin'
+            bat "echo %DOCKER_PASSWORD% | docker login -u %DOCKER_USERNAME% --password-stdin"
             
             // Push versioned image (specific to this build)
             echo "📤 Pushing ${REGISTRY_IMAGE}:${IMAGE_TAG}..."
-            sh "docker push ${REGISTRY_IMAGE}:${IMAGE_TAG}"
+            bat "docker push ${REGISTRY_IMAGE}:${IMAGE_TAG}"
             
             // Push latest image (overwrites previous 'latest')
             echo "📤 Pushing ${REGISTRY_IMAGE}:latest..."
-            sh "docker push ${REGISTRY_IMAGE}:latest"
+            bat "docker push ${REGISTRY_IMAGE}:latest"
             
             // Logout for security best practices
-            sh "docker logout"
+            bat "docker logout"
             
-            echo "✅ Images pushed successfully to Docker Hub!"
+            echo "✅ Images pushed successfully to Docker Hub from local machine!"
             echo "🐳 Available at: https://hub.docker.com/r/khushalbhavsar/employee-management"
           }
         }
@@ -179,13 +188,14 @@ pipeline {
       archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
 
       script {
-        // Clean up test containers to free resources
-        sh "docker stop employee-management-test || true"
-        sh "docker rm employee-management-test || true"
+        // Clean up test containers to free resources (on local machine)
+        // Using bat command for Windows compatibility
+        bat "docker stop employee-management-test || exit 0"
+        bat "docker rm employee-management-test || exit 0"
         
         // Clean up dangling Docker images to save disk space
         // -f: Force removal without confirmation
-        sh "docker image prune -f || true"
+        bat "docker image prune -f || exit 0"
       }
     }
 

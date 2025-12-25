@@ -34,8 +34,12 @@ pipeline {
         stage('Checkout Source') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
-                    echo "📥 Checking out source code"
+                    echo "========================================"
+                    echo "📥 STAGE: Checkout Source"
+                    echo "========================================"
+                    echo "🔄 Fetching source code from repository..."
                     checkout scm
+                    echo "✅ Source code checkout completed successfully"
                 }
             }
         }
@@ -43,8 +47,14 @@ pipeline {
         stage('Maven Build') {
             steps {
                 timeout(time: 60, unit: 'MINUTES') {
-                    echo "🔨 Building Java Application"
+                    echo "========================================"
+                    echo "🔨 STAGE: Maven Build"
+                    echo "========================================"
+                    echo "🔄 Cleaning previous build artifacts..."
+                    echo "🔄 Compiling Java source code..."
+                    echo "🔄 Packaging application (skipping tests)..."
                     sh 'mvn clean package -DskipTests'
+                    echo "✅ Maven build completed successfully"
                 }
             }
         }
@@ -52,8 +62,12 @@ pipeline {
         stage('Unit Tests') {
             steps {
                 timeout(time: 30, unit: 'MINUTES') {
-                    echo "🧪 Running Unit Tests"
+                    echo "========================================"
+                    echo "🧪 STAGE: Unit Tests"
+                    echo "========================================"
+                    echo "🔄 Executing unit test suite..."
                     sh 'mvn test'
+                    echo "✅ All unit tests passed successfully"
                 }
             }
         }
@@ -61,7 +75,11 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 timeout(time: 30, unit: 'MINUTES') {
-                    echo "🔍 Running SonarQube Analysis"
+                    echo "========================================"
+                    echo "🔍 STAGE: SonarQube Analysis"
+                    echo "========================================"
+                    echo "🔄 Connecting to SonarQube server..."
+                    echo "🔄 Analyzing code quality and security..."
                     script {
                         try {
                             withCredentials([string(credentialsId: 'sonar-token', variable: 'SONAR_TOKEN_SECRET')]) {
@@ -72,8 +90,10 @@ pipeline {
                                       -Dsonar.login=$SONAR_TOKEN_SECRET
                                 '''
                             }
+                            echo "✅ SonarQube analysis completed successfully"
                         } catch (err) {
-                            echo "⚠️ SonarQube failed, continuing pipeline"
+                            echo "⚠️ SonarQube analysis failed, continuing pipeline..."
+                            echo "⚠️ Error: ${err.getMessage()}"
                         }
                     }
                 }
@@ -83,10 +103,15 @@ pipeline {
         stage('Archive Artifacts') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
-                    echo "📦 Archiving Build Artifacts"
+                    echo "========================================"
+                    echo "📦 STAGE: Archive Artifacts"
+                    echo "========================================"
+                    echo "🔄 Collecting build artifacts..."
+                    echo "🔄 Archiving JAR files from target directory..."
                     archiveArtifacts artifacts: "${BUILD_ARTIFACTS}",
                                      allowEmptyArchive: true,
                                      fingerprint: true
+                    echo "✅ Build artifacts archived successfully"
                 }
             }
         }
@@ -94,12 +119,18 @@ pipeline {
         stage('Docker Build') {
             steps {
                 timeout(time: 30, unit: 'MINUTES') {
-                    echo "🐳 Building Docker Image"
+                    echo "========================================"
+                    echo "🐳 STAGE: Docker Build"
+                    echo "========================================"
+                    echo "🔄 Checking Docker installation..."
+                    echo "🔄 Building Docker image from Dockerfile..."
+                    echo "🔄 Tagging image with build number: ${DOCKER_TAG}"
                     sh '''
                         docker --version
                         docker build -t ${IMAGE_NAME}:${DOCKER_TAG} .
                         docker tag ${IMAGE_NAME}:${DOCKER_TAG} ${IMAGE_NAME}:latest
                     '''
+                    echo "✅ Docker image built and tagged successfully"
                 }
             }
         }
@@ -107,7 +138,10 @@ pipeline {
         stage('Push Image to Registry') {
             steps {
                 timeout(time: 30, unit: 'MINUTES') {
-                    echo "📤 Pushing Docker Image"
+                    echo "========================================"
+                    echo "📤 STAGE: Push Image to Registry"
+                    echo "========================================"
+                    echo "🔄 Authenticating with Docker Hub..."
                     withCredentials([usernamePassword(
                         credentialsId: 'dockerHubCreds',
                         usernameVariable: 'DOCKER_USER',
@@ -115,13 +149,17 @@ pipeline {
                     )]) {
                         sh '''
                             echo "$DOCKER_PASS" | docker login -u "$DOCKER_USER" --password-stdin
+                            echo "🔄 Tagging images for Docker Hub..."
                             docker tag ${IMAGE_NAME}:${DOCKER_TAG} $DOCKER_USER/${IMAGE_NAME}:${DOCKER_TAG}
                             docker tag ${IMAGE_NAME}:${DOCKER_TAG} $DOCKER_USER/${IMAGE_NAME}:latest
+                            echo "🔄 Pushing image with tag: ${DOCKER_TAG}..."
                             docker push $DOCKER_USER/${IMAGE_NAME}:${DOCKER_TAG}
+                            echo "🔄 Pushing image with tag: latest..."
                             docker push $DOCKER_USER/${IMAGE_NAME}:latest
                             docker logout
                         '''
                     }
+                    echo "✅ Docker images pushed to registry successfully"
                 }
             }
         }
@@ -129,12 +167,18 @@ pipeline {
         stage('Deploy Application') {
             steps {
                 timeout(time: 15, unit: 'MINUTES') {
-                    echo "🚀 Deploying Application"
+                    echo "========================================"
+                    echo "🚀 STAGE: Deploy Application"
+                    echo "========================================"
+                    echo "🔄 Stopping existing containers..."
+                    echo "🔄 Starting new containers with docker-compose..."
                     sh '''
                         docker compose down || true
                         docker compose up -d
+                        echo "🔄 Verifying container status..."
                         docker compose ps
                     '''
+                    echo "✅ Application deployed successfully"
                 }
             }
         }
@@ -142,11 +186,16 @@ pipeline {
         stage('Cleanup') {
             steps {
                 timeout(time: 10, unit: 'MINUTES') {
-                    echo "🧹 Cleaning Docker resources"
+                    echo "========================================"
+                    echo "🧹 STAGE: Cleanup"
+                    echo "========================================"
+                    echo "🔄 Removing dangling Docker images..."
+                    echo "🔄 Removing stopped containers..."
                     sh '''
                         docker image prune -af || true
                         docker container prune -f || true
                     '''
+                    echo "✅ Docker cleanup completed successfully"
                 }
             }
         }
@@ -154,21 +203,38 @@ pipeline {
 
     post {
         always {
+            echo "========================================"
+            echo "📋 PIPELINE SUMMARY"
+            echo "========================================"
             echo "📦 Pipeline completed at ${new Date().format('yyyy-MM-dd HH:mm:ss')}"
+            echo "🔢 Build Number: ${BUILD_NUMBER}"
+            echo "🌿 Branch: ${env.GIT_BRANCH ?: 'N/A'}"
+            echo "🔄 Cleaning workspace..."
             cleanWs()
+            echo "✅ Workspace cleaned"
         }
 
         success {
-            echo "✅ Build & Deployment Successful!"
+            echo "========================================"
+            echo "✅ SUCCESS: Build & Deployment Completed!"
+            echo "========================================"
+            echo "🐳 Docker Image: ${IMAGE_NAME}:${DOCKER_TAG}"
+            echo "🔗 Build URL: ${BUILD_URL}"
         }
 
         failure {
-            echo "❌ Pipeline Failed!"
-            echo "🔗 Logs: ${BUILD_URL}console"
+            echo "========================================"
+            echo "❌ FAILURE: Pipeline Failed!"
+            echo "========================================"
+            echo "🔗 Check Console Logs: ${BUILD_URL}console"
+            echo "📧 Please review the error and fix the issue"
         }
 
         unstable {
-            echo "⚠️ Pipeline unstable"
+            echo "========================================"
+            echo "⚠️ UNSTABLE: Pipeline completed with warnings"
+            echo "========================================"
+            echo "🔍 Some tests may have failed or quality gates not met"
         }
     }
 }

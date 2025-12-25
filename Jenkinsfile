@@ -23,62 +23,49 @@ pipeline {
     stages {
 
         stage('Checkout Source') {
-            timeout(time: 10, unit: 'MINUTES')
-            steps {
-                echo "📥 Checking out source code from Jenkins SCM"
-                checkout scm
+        steps {
+                    timeout(time: 10, unit: 'MINUTES') {
+                    echo "📥 Checking out source code"
+                    checkout scm
+                }
             }
         }
+
 
         stage('Maven Build') {
-            timeout(time: 20, unit: 'MINUTES')
             steps {
-                echo "🔨 Building Java Application"
-                script {
-                    try {
-                        sh 'mvn clean package -DskipTests'
-                    } catch (Exception e) {
-                        echo "❌ Maven build failed: ${e.message}"
-                        throw e
-                    }
-                }
-            }
+                        timeout(time: 20, unit: 'MINUTES') {
+                        echo "🔨 Building Java Application"
+                    sh 'mvn clean package -DskipTests'
         }
+    }
+}
+
 
         stage('Unit Tests') {
-            timeout(time: 15, unit: 'MINUTES')
-            steps {
-                echo "🧪 Running Unit Tests"
-                script {
-                    try {
-                        sh 'mvn test'
-                    } catch (Exception e) {
-                        echo "⚠️ Tests failed: ${e.message}"
-                        throw e
-                    }
-                }
-            }
+    steps {
+        timeout(time: 15, unit: 'MINUTES') {
+            echo "🧪 Running Unit Tests"
+            sh 'mvn test'
         }
+    }
+}
+
 
         stage('SonarQube Analysis') {
-            timeout(time: 15, unit: 'MINUTES')
-            steps {
-                echo "🔍 Running SonarQube Analysis"
-                script {
-                    try {
-                        sh """
-                            mvn sonar:sonar \
-                              -Dsonar.projectKey=employee-management \
-                              -Dsonar.host.url=${SONAR_HOST_URL} \
-                              -Dsonar.login=${SONAR_TOKEN}
-                        """
-                    } catch (Exception e) {
-                        echo "⚠️ SonarQube analysis failed: ${e.message}"
-                        // Don't fail pipeline on SonarQube errors
-                    }
-                }
-            }
+    steps {
+        timeout(time: 15, unit: 'MINUTES') {
+            echo "🔍 Running SonarQube Analysis"
+            sh """
+                mvn sonar:sonar \
+                  -Dsonar.projectKey=employee-management \
+                  -Dsonar.host.url=${SONAR_HOST_URL} \
+                  -Dsonar.login=${SONAR_TOKEN}
+            """
         }
+    }
+}
+
 
         stage('Archive Artifacts') {
             timeout(time: 5, unit: 'MINUTES')
@@ -94,23 +81,17 @@ pipeline {
         }
 
         stage('Docker Build') {
-            timeout(time: 15, unit: 'MINUTES')
-            steps {
-                echo "🐳 Building Docker Image"
-                script {
-                    try {
-                        sh """
-                            docker build -t ${IMAGE_NAME}:${DOCKER_TAG} .
-                            docker tag ${IMAGE_NAME}:${DOCKER_TAG} ${IMAGE_NAME}:latest
-                            echo "✅ Docker image built successfully: ${IMAGE_NAME}:${DOCKER_TAG}"
-                        """
-                    } catch (Exception e) {
-                        echo "❌ Docker build failed: ${e.message}"
-                        throw e
-                    }
-                }
-            }
+    steps {
+        timeout(time: 15, unit: 'MINUTES') {
+            echo "🐳 Building Docker Image"
+            sh """
+                docker build -t ${IMAGE_NAME}:${DOCKER_TAG} .
+                docker tag ${IMAGE_NAME}:${DOCKER_TAG} ${IMAGE_NAME}:latest
+            """
         }
+    }
+}
+
 
         stage('Push Image to Registry') {
             timeout(time: 15, unit: 'MINUTES')
@@ -152,25 +133,17 @@ pipeline {
         }
 
         stage('Deploy Application') {
-            timeout(time: 10, unit: 'MINUTES')
-            steps {
-                echo "🚀 Deploying Application using Docker Compose"
-                script {
-                    try {
-                        sh '''
-                            docker compose down || true
-                            docker compose up -d
-                            sleep 5
-                            docker compose ps
-                            echo "✅ Application deployed successfully"
-                        '''
-                    } catch (Exception e) {
-                        echo "❌ Deployment failed: ${e.message}"
-                        throw e
-                    }
-                }
-            }
+    steps {
+        timeout(time: 10, unit: 'MINUTES') {
+            echo "🚀 Deploying Application"
+            sh '''
+                docker compose down || true
+                docker compose up -d
+            '''
         }
+    }
+}
+
 
         stage('Cleanup') {
             timeout(time: 5, unit: 'MINUTES')

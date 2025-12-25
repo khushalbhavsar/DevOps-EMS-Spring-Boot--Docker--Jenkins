@@ -1,4 +1,6 @@
 # Docker Compose for Local Development with Monitoring
+# NOTE: SonarQube is excluded by default (already running as standalone service on server)
+# To include SonarQube, run: docker compose --profile with-sonarqube up -d
 
 services:
   employee-management:
@@ -14,7 +16,8 @@ services:
     networks:
       - app-network
 
-  # SonarQube for code quality analysis
+  # SonarQube for code quality analysis (OPTIONAL - use profile to enable)
+  # Already running as standalone service on server at localhost:9000
   sonarqube:
     image: sonarqube:community
     ports:
@@ -27,6 +30,8 @@ services:
       - sonarqube_logs:/opt/sonarqube/logs
     networks:
       - app-network
+    profiles:
+      - with-sonarqube
 
   # Prometheus for metrics collection
   prometheus:

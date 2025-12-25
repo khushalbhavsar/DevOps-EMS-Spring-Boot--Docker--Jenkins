@@ -1,374 +1,712 @@
-# Employee Management System
+# Employee Management System (EMS) - Spring Boot Application
 
-A modern, full-stack Employee Management System built with **Spring Boot**, **Maven**, and **H2 Database**. Features a beautiful web interface, REST API, and comprehensive CRUD operations for managing employees efficiently.
+A comprehensive Employee Management System built with Spring Boot 3.1.4, featuring complete CI/CD pipeline integration with Docker, Jenkins, Prometheus, Grafana, and SonarQube for monitoring and code quality analysis.
 
-## 🌟 Features
+## 📋 Table of Contents
 
-### 🌐 Web Interface
-- **Modern, Responsive UI** - Beautiful gradient design that works on all devices
-- **Complete CRUD Operations** - Add, edit, delete, and view employees
-- **Real-time Search & Filter** - Search across all employee fields instantly
-- **Form Validation** - Client-side validation for all input fields
-- **Status Notifications** - User feedback for all operations
-- **Mobile-Friendly** - Fully responsive design for desktop, tablet, and mobile
+- [Project Overview](#project-overview)
+- [Technology Stack](#technology-stack)
+- [Prerequisites](#prerequisites)
+- [Project Structure](#project-structure)
+- [Installation & Setup](#installation--setup)
+- [Running the Application](#running-the-application)
+- [Building the Application](#building-the-application)
+- [Docker Deployment](#docker-deployment)
+- [Jenkins CI/CD Pipeline](#jenkins-cicd-pipeline)
+- [Monitoring with Prometheus & Grafana](#monitoring-with-prometheus--grafana)
+- [SonarQube Code Quality Analysis](#sonarqube-code-quality-analysis)
+- [API Endpoints](#api-endpoints)
+- [Database Configuration](#database-configuration)
+- [Testing](#testing)
+- [Troubleshooting](#troubleshooting)
+- [Contributing](#contributing)
+- [License](#license)
 
-### 🔌 REST API
-- **RESTful Endpoints** - Standard HTTP methods for all operations
-- **JSON Data Format** - Easy integration with other applications
-- **CORS Enabled** - Cross-origin requests supported
-- **Error Handling** - Proper HTTP status codes and error responses
+## 🎯 Project Overview
 
-### 🗄️ Database
-- **H2 In-Memory Database** - Perfect for development and testing
-- **JPA/Hibernate** - Object-relational mapping for easy data management
-- **Database Console** - Built-in H2 console for direct database access
-- **Auto DDL** - Database schema created automatically
+The Employee Management System is a full-stack Spring Boot application designed to manage employee records with the following features:
 
-### 🚀 DevOps Ready
-- **Docker Support** - Containerization ready
-- **CI/CD Pipelines** - Jenkins and GitLab CI configurations
-- **Maven Build** - Reliable build system with wrapper
-- **Production Ready** - Configured for deployment
+- **REST API** for CRUD operations on employee data
+- **Web UI** with HTML/CSS/JavaScript frontend
+- **H2 Database** for in-memory data persistence
+- **Spring Data JPA** for database operations
+- **Docker & Kubernetes** ready deployment
+- **CI/CD Pipeline** with Jenkins
+- **Real-time Monitoring** with Prometheus and Grafana
+- **Code Quality Analysis** with SonarQube
+- **Automated Testing** with JUnit and Maven
 
-## 🚀 Quick Start
+## 🛠 Technology Stack
 
-### Prerequisites
-- **Java 21+** (JDK 21 recommended)
-- **Maven 3.6+** (wrapper included)
+| Component | Version |
+|-----------|---------|
+| **Java** | 17 (LTS) - Upgradeable to 21 |
+| **Spring Boot** | 3.1.4 |
+| **Maven** | 3.8.x (via Maven Wrapper) |
+| **Database** | H2 (In-memory) |
+| **Build** | Maven |
+| **Containerization** | Docker |
+| **CI/CD** | Jenkins |
+| **Monitoring** | Prometheus, Grafana |
+| **Code Quality** | SonarQube |
+| **Testing** | JUnit 5, Spring Boot Test |
 
-### 1. Clone & Build
-```bash
-git clone <repository-url>
-cd employee-management-system
-./mvnw clean package
+## 📦 Prerequisites
+
+Before you begin, ensure you have the following installed:
+
+### Required
+- **Java Development Kit (JDK) 17+** or **Java 21 LTS**
+  - Download: https://www.oracle.com/java/technologies/downloads/
+  - Or use OpenJDK: https://adoptium.net/
+- **Git** for version control
+- **Maven** (optional - Maven Wrapper included)
+
+### Optional (for DevOps features)
+- **Docker** (v20.10+) - For containerization
+- **Docker Compose** - For multi-container orchestration
+- **Jenkins** - For CI/CD pipeline
+- **Prometheus** - For metrics collection
+- **Grafana** - For visualization
+- **SonarQube** - For code quality
+
+## 📂 Project Structure
+
+```
+.
+├── src/
+│   ├── main/
+│   │   ├── java/com/example/
+│   │   │   ├── EmployeeManagementApplication.java    # Spring Boot Entry Point
+│   │   │   ├── controller/
+│   │   │   │   └── EmployeeController.java           # REST API Endpoints
+│   │   │   ├── model/
+│   │   │   │   └── Employee.java                     # Entity Model
+│   │   │   ├── repository/
+│   │   │   │   └── EmployeeRepository.java           # Data Access Layer
+│   │   │   └── service/
+│   │   │       └── EmployeeService.java              # Business Logic
+│   │   └── resources/
+│   │       ├── application.properties                 # App Configuration
+│   │       └── static/
+│   │           ├── index.html                         # Web UI
+│   │           ├── script.js                          # Frontend Logic
+│   │           └── styles.css                         # Styling
+│   └── test/
+│       └── java/com/example/
+│           └── EmployeeManagementApplicationTests.java # Unit Tests
+├── Dockerfile                                          # Docker Container Config
+├── docker-compose.yml                                  # Multi-container Setup
+├── Jenkinsfile                                         # CI/CD Pipeline
+├── pom.xml                                             # Maven Dependencies
+├── mvnw / mvnw.cmd                                     # Maven Wrapper
+├── prometheus.yml                                      # Prometheus Config
+├── grafana-datasource.yml                              # Grafana Setup
+├── grafana-dashboard.json                              # Dashboard Config
+├── EC2-SETUP-*.md                                      # AWS EC2 Setup Guide
+├── INTEGRATION-GUIDE.md                                # Integration Guide
+└── README.md                                           # This File
 ```
 
-### 2. Run Application
+## 🚀 Installation & Setup
+
+### Step 1: Clone the Repository
+
 ```bash
+git clone <repository-url>
+cd DevOps-EMS-Spring-Boot--Docker--Jenkins
+```
+
+### Step 2: Verify Java Installation
+
+```bash
+# Check Java version
+java -version
+
+# Check compiler version
+javac -version
+```
+
+**Expected Output:**
+```
+java version "17.0.x" (or "21.x.x")
+```
+
+### Step 3: Verify Maven Setup
+
+```bash
+# Check Maven Wrapper (Windows)
+mvnw.cmd -version
+
+# Or on Linux/Mac
+./mvnw -version
+```
+
+### Step 4: Install Dependencies
+
+```bash
+# Windows
+mvnw.cmd clean install
+
+# Linux/Mac
+./mvnw clean install
+```
+
+This will:
+- Clean previous builds
+- Download all dependencies from Maven Central
+- Compile source code
+- Run unit tests
+- Package the application
+
+## ▶️ Running the Application
+
+### Method 1: Using Maven (Development)
+
+```bash
+# Windows
+mvnw.cmd spring-boot:run
+
+# Linux/Mac
+./mvnw spring-boot:run
+```
+
+### Method 2: Using JAR File (Production)
+
+```bash
+# Build the JAR
+mvnw.cmd clean package
+
+# Run the JAR
 java -jar target/employee-management-0.0.1-SNAPSHOT.jar
 ```
 
-### 3. Access Application
-- **🌐 Web Interface**: `http://localhost:8080/`
-- **🔌 API Base URL**: `http://localhost:8080/api/employees`
-- **🗄️ H2 Console**: `http://localhost:8080/h2-console`
+### Method 3: Using IDE (IntelliJ IDEA / Eclipse)
 
-## 📖 API Documentation
+1. Open the project in your IDE
+2. Right-click on `EmployeeManagementApplication.java`
+3. Select **Run** or **Run as Spring Boot App**
 
-### Base URL: `/api/employees`
+### Method 4: Using Docker
 
-| Method | Endpoint | Description | Request Body |
-|--------|----------|-------------|--------------|
-| `GET` | `/` | List all employees | - |
-| `GET` | `/{id}` | Get employee by ID | - |
-| `POST` | `/` | Create new employee | Employee JSON |
-| `PUT` | `/{id}` | Update employee | Employee JSON |
-| `DELETE` | `/{id}` | Delete employee | - |
+```bash
+# Build Docker image
+docker build -t employee-management:latest .
 
-### Employee JSON Structure
-```json
-{
-  "id": 1,
-  "firstName": "John",
-  "lastName": "Doe", 
-  "email": "john.doe@example.com",
-  "role": "Software Engineer"
-}
+# Run container
+docker run -p 8080:8080 --name ems-app employee-management:latest
 ```
 
-### API Examples
+### Verification
 
-#### Create Employee
+Once started, the application will log:
+
+```
+Started EmployeeManagementApplication in X.XXX seconds
+```
+
+Access the application at: **http://localhost:8080**
+
+## 🏗️ Building the Application
+
+### Clean Build
+
+```bash
+mvnw.cmd clean package
+```
+
+### Build with Tests
+
+```bash
+mvnw.cmd clean verify
+```
+
+### Build with Code Coverage (JaCoCo)
+
+```bash
+mvnw.cmd clean install
+# Coverage report at: target/site/jacoco/index.html
+```
+
+### Build Output
+
+- **JAR File**: `target/employee-management-0.0.1-SNAPSHOT.jar`
+- **Test Results**: `target/surefire-reports/`
+- **Code Coverage**: `target/site/jacoco/`
+- **Classes**: `target/classes/`
+
+## 🐳 Docker Deployment
+
+### Build Docker Image
+
+```bash
+# Build image with tag
+docker build -t employee-management:1.0.0 .
+
+# Tag as latest
+docker tag employee-management:1.0.0 employee-management:latest
+```
+
+### Run Single Container
+
+```bash
+# Run with port mapping
+docker run -d \
+  --name ems-app \
+  -p 8080:8080 \
+  -e JAVA_OPTS="-Xmx512m -Xms256m" \
+  employee-management:latest
+
+# View logs
+docker logs -f ems-app
+
+# Stop container
+docker stop ems-app
+
+# Remove container
+docker rm ems-app
+```
+
+### Docker Compose (Multi-container)
+
+```bash
+# Start services
+docker-compose up -d
+
+# View services
+docker-compose ps
+
+# View logs
+docker-compose logs -f app
+
+# Stop services
+docker-compose down
+```
+
+Services in docker-compose.yml:
+- **app**: Spring Boot Application (port 8080)
+- **prometheus**: Metrics collection (port 9090)
+- **grafana**: Visualization (port 3000)
+- **jenkins**: CI/CD (port 8081)
+
+## 🔄 Jenkins CI/CD Pipeline
+
+### Prerequisites
+
+```bash
+# Start Jenkins on EC2
+docker run -d \
+  --name jenkins \
+  -p 8080:8080 \
+  -p 50000:50000 \
+  -v /var/run/docker.sock:/var/run/docker.sock \
+  jenkins/jenkins:latest
+```
+
+### Jenkinsfile Stages
+
+1. **Checkout** - Clone repository
+2. **Build** - Compile with Maven
+3. **Test** - Run unit tests
+4. **Code Quality** - SonarQube analysis
+5. **Docker Build** - Create Docker image
+6. **Push** - Push to registry
+7. **Deploy** - Deploy to target environment
+
+### Running Pipeline
+
+1. Create new Pipeline job in Jenkins
+2. Point to repository URL
+3. Set `Jenkinsfile` as pipeline script
+4. Configure webhooks for auto-trigger
+5. Run pipeline
+
+### Monitor Pipeline
+
+- Jenkins Dashboard: http://your-jenkins-host:8080
+- Build Logs: Jenkins UI > Job > Build > Console Output
+
+## 📊 Monitoring with Prometheus & Grafana
+
+### Prometheus
+
+**Configuration**: `prometheus.yml`
+
+```bash
+# Start Prometheus
+docker run -d \
+  --name prometheus \
+  -p 9090:9090 \
+  -v $(pwd)/prometheus.yml:/etc/prometheus/prometheus.yml \
+  prom/prometheus
+```
+
+Access: http://localhost:9090
+
+**Metrics Endpoints:**
+- Application Metrics: http://localhost:8080/actuator/prometheus
+- Health Check: http://localhost:8080/actuator/health
+
+### Grafana
+
+**Configuration**: `grafana-datasource.yml`, `grafana-dashboard.json`
+
+```bash
+# Start Grafana
+docker run -d \
+  --name grafana \
+  -p 3000:3000 \
+  -e GF_SECURITY_ADMIN_PASSWORD=admin \
+  grafana/grafana
+```
+
+Access: http://localhost:3000 (admin/admin)
+
+**Setup Steps:**
+1. Add Prometheus datasource
+2. Import dashboard from `grafana-dashboard.json`
+3. Configure alerts
+4. View real-time metrics
+
+### Key Metrics Monitored
+
+- **JVM Memory**: Heap usage, garbage collection
+- **HTTP Requests**: Request rate, response time
+- **Database Connections**: Active connections, pool status
+- **Application Health**: Uptime, error rates
+
+## 🔍 SonarQube Code Quality Analysis
+
+### Installation
+
+```bash
+# Start SonarQube
+docker run -d \
+  --name sonarqube \
+  -p 9000:9000 \
+  sonarqube:latest
+```
+
+Access: http://localhost:9000 (admin/admin)
+
+### Run Analysis
+
+```bash
+# Run SonarQube scan
+mvnw.cmd clean verify sonar:sonar \
+  -Dsonar.projectKey=employee-management \
+  -Dsonar.sources=src/main/java \
+  -Dsonar.host.url=http://localhost:9000 \
+  -Dsonar.login=<sonar-token>
+```
+
+### Code Quality Gates
+
+- **Coverage**: Minimum 80%
+- **Duplications**: Maximum 3%
+- **Code Smells**: Max 10
+- **Bugs**: Zero critical
+- **Security Issues**: Zero high/critical
+
+## 📡 API Endpoints
+
+### Employee Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| **GET** | `/api/employees` | Get all employees |
+| **GET** | `/api/employees/{id}` | Get employee by ID |
+| **POST** | `/api/employees` | Create new employee |
+| **PUT** | `/api/employees/{id}` | Update employee |
+| **DELETE** | `/api/employees/{id}` | Delete employee |
+
+### Example Requests
+
+**Get All Employees**
+```bash
+curl -X GET http://localhost:8080/api/employees
+```
+
+**Create Employee**
 ```bash
 curl -X POST http://localhost:8080/api/employees \
   -H "Content-Type: application/json" \
-  -d '{"firstName":"John","lastName":"Doe","email":"john.doe@example.com","role":"Developer"}'
+  -d '{
+    "name": "John Doe",
+    "email": "john@example.com",
+    "department": "Engineering",
+    "salary": 75000
+  }'
 ```
 
-#### Get All Employees
+**Get Employee by ID**
 ```bash
-curl http://localhost:8080/api/employees
+curl -X GET http://localhost:8080/api/employees/1
 ```
 
-#### Update Employee
+**Update Employee**
 ```bash
 curl -X PUT http://localhost:8080/api/employees/1 \
   -H "Content-Type: application/json" \
-  -d '{"firstName":"John","lastName":"Smith","email":"john.smith@example.com","role":"Senior Developer"}'
+  -d '{
+    "name": "Jane Doe",
+    "email": "jane@example.com",
+    "department": "Management",
+    "salary": 85000
+  }'
 ```
 
-#### Delete Employee
+**Delete Employee**
 ```bash
 curl -X DELETE http://localhost:8080/api/employees/1
 ```
 
+### Health & Actuator Endpoints
+
+| Endpoint | Description |
+|----------|-------------|
+| `/actuator` | Available endpoints |
+| `/actuator/health` | Application health |
+| `/actuator/metrics` | JVM metrics |
+| `/actuator/prometheus` | Prometheus metrics |
+| `/h2-console` | H2 database console |
+
 ## 🗄️ Database Configuration
 
-### H2 Console Access
-- **URL**: `http://localhost:8080/h2-console`
-- **JDBC URL**: `jdbc:h2:mem:employeedb`
-- **Username**: `SA`
-- **Password**: (leave empty)
+### H2 Database
 
-### Database Properties
+**Configuration** in `application.properties`:
+
 ```properties
-spring.h2.console.enabled=true
-spring.datasource.url=jdbc:h2:mem:employeedb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
-spring.datasource.driver-class-name=org.h2.Driver
+spring.datasource.url=jdbc:h2:mem:employeedb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+
 spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
-spring.jpa.hibernate.ddl-auto=update
+spring.jpa.hibernate.ddl-auto=create-drop
+spring.h2.console.enabled=true
 ```
 
-## 🐳 Docker
+### Access H2 Console
 
-### Build Image
+1. Navigate to: http://localhost:8080/h2-console
+2. **JDBC URL**: `jdbc:h2:mem:employeedb`
+3. **User Name**: `sa`
+4. **Password**: (leave empty)
+5. Click **Connect**
+
+### Switching to PostgreSQL (Optional)
+
+**Add Dependency** in `pom.xml`:
+```xml
+<dependency>
+    <groupId>org.postgresql</groupId>
+    <artifactId>postgresql</artifactId>
+    <scope>runtime</scope>
+</dependency>
+```
+
+**Update** `application.properties`:
+```properties
+spring.datasource.url=jdbc:postgresql://localhost:5432/employeedb
+spring.datasource.username=postgres
+spring.datasource.password=password
+spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect
+```
+
+## 🧪 Testing
+
+### Run All Tests
+
 ```bash
-docker build -t employee-management:latest .
-```
+# Windows
+mvnw.cmd test
 
-### Run Container
-```bash
-docker run -p 8080:8080 employee-management:latest
-```
-
-### Docker Compose (Optional)
-```yaml
-version: '3.8'
-services:
-  employee-management:
-    build: .
-    ports:
-      - "8080:8080"
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-```
-
-## 🔧 Development
-
-### Project Structure
-```
-employee-management/
-├── src/
-│   ├── main/
-│   │   ├── java/com/example/
-│   │   │   ├── EmployeeManagementApplication.java
-│   │   │   ├── controller/EmployeeController.java
-│   │   │   ├── model/Employee.java
-│   │   │   ├── repository/EmployeeRepository.java
-│   │   │   └── service/EmployeeService.java
-│   │   └── resources/
-│   │       ├── application.properties
-│   │       └── static/
-│   │           ├── index.html
-│   │           ├── script.js
-│   │           └── styles.css
-│   └── test/
-├── Dockerfile
-├── Jenkinsfile
-├── .gitlab-ci.yml
-├── pom.xml
-└── README.md
-```
-
-### Technologies Used
-- **Backend**: Spring Boot 3.1.4, Spring Data JPA, Spring Web
-- **Database**: H2 Database (in-memory)
-- **Frontend**: HTML5, CSS3, JavaScript (Vanilla)
-- **Build Tool**: Maven 3.9+
-- **Java Version**: 21+
-- **Server**: Embedded Tomcat
-
-### Running in Development Mode
-```bash
-./mvnw spring-boot:run
-```
-
-### Running Tests
-```bash
+# Linux/Mac
 ./mvnw test
 ```
 
-## 🚀 CI/CD Pipelines
+### Run Specific Test Class
 
-### Jenkins Pipeline
-The `Jenkinsfile` includes:
-- **Checkout** - Get source code
-- **Build** - Compile and package
-- **Test** - Run unit tests
-- **Docker Build** - Create container image
-- **Artifacts** - Archive JAR files
-
-### GitLab CI Pipeline
-The `.gitlab-ci.yml` includes:
-- **Build Stage** - Maven compile and package
-- **Test Stage** - Execute test suite
-- **Docker Stage** - Build and tag container image
-
-### Pipeline Configuration
 ```bash
-# Enable push stage in Jenkinsfile
-# Set registry credentials in GitLab CI/CD variables
-# Configure Docker registry access
+mvnw.cmd test -Dtest=EmployeeControllerTest
 ```
 
-## 🖥️ Jenkins Setup on AWS EC2 (Amazon Linux 2)
+### Run with Code Coverage
 
-### Instance Details
-- **EC2 Type**: t3.large or c7i-flex.large
-- **Key**: jenkins.pem
-- **SG Inbound Rule**: Port 8080 Enabled
-- **User**: ec2-user
-
-### Step 1: Connect to EC2
 ```bash
-cd ~/Downloads
-chmod 400 jenkins.pem
-ssh -i "jenkins.pem" ec2-user@ec2-52-204-224-228.compute-1.amazonaws.com
+mvnw.cmd clean test jacoco:report
+# Report: target/site/jacoco/index.html
 ```
 
-### Step 2: Install Dependencies
+### Test Results
+
+- **Reports**: `target/surefire-reports/`
+- **HTML Report**: `target/site/jacoco/index.html`
+
+## 🐛 Troubleshooting
+
+### Issue: "mvnw: command not found" (Linux/Mac)
+
+**Solution:**
 ```bash
-sudo yum update -y
-sudo yum install wget tar tree python -y
+chmod +x mvnw
+./mvnw clean install
 ```
 
-### Step 3: Install Git
+### Issue: Port 8080 already in use
+
+**Solution:**
 ```bash
-sudo yum install git -y
-git config --global user.name "khushalbhavsar"
-git config --global user.email "khushalbhavsar41@gmail.com"
-git config --list
+# Windows
+netstat -ano | findstr :8080
+taskkill /PID <PID> /F
+
+# Linux/Mac
+lsof -i :8080
+kill -9 <PID>
+
+# Or use different port
+java -Dserver.port=8081 -jar target/employee-management-0.0.1-SNAPSHOT.jar
 ```
 
-### Step 4: Install Docker
-```bash
-sudo yum install docker -y
-sudo systemctl start docker
-sudo systemctl enable docker
-sudo docker login
-docker --version
-```
-**Note**: Add Jenkins user later after Jenkins installation.
+### Issue: Java version mismatch
 
-### Step 5: Install Maven
+**Solution:**
 ```bash
-sudo yum install maven -y
-mvn -v
+# Check installed JDK
+java -version
+
+# Set JAVA_HOME (Windows)
+set JAVA_HOME=C:\Program Files\Java\jdk-17
+
+# Set JAVA_HOME (Linux/Mac)
+export JAVA_HOME=/usr/libexec/java_home -v 17
 ```
 
-### Step 6: Install Java 21 (Amazon Corretto)
+### Issue: Docker build fails
+
+**Solution:**
 ```bash
-sudo yum install java-21-amazon-corretto.x86_64 -y
-java --version
+# Clean Docker system
+docker system prune -a
+
+# Rebuild image
+docker build --no-cache -t employee-management:latest .
 ```
 
-### Step 7: Install Jenkins
-```bash
-sudo wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
-sudo rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
-sudo yum upgrade -y
-sudo yum install fontconfig java-21-openjdk -y
-sudo yum install jenkins -y
-sudo systemctl daemon-reload
+### Issue: H2 Console not accessible
+
+**Solution:** Ensure `spring.h2.console.enabled=true` in `application.properties`
+
+### Issue: Prometheus not scraping metrics
+
+**Solution:** Check `prometheus.yml` for correct endpoints:
+```yaml
+targets: ['localhost:8080']
 ```
 
-### Step 8: Start & Enable Jenkins
+### Issue: Gradle/Maven lock file conflicts
+
+**Solution:**
 ```bash
-sudo systemctl start jenkins
-sudo systemctl enable jenkins
-jenkins --version
+mvnw.cmd clean install -U
 ```
 
-### Step 9: Allow Jenkins to Use Docker
-```bash
-sudo usermod -aG docker jenkins
-sudo systemctl restart docker
-sudo systemctl restart jenkins
+The `-U` flag forces update of dependencies.
+
+## 🔧 Upgrading to Java 21 LTS
+
+### Update pom.xml
+
+```xml
+<properties>
+    <java.version>21</java.version>
+    <maven.compiler.source>${java.version}</maven.compiler.source>
+    <maven.compiler.target>${java.version}</maven.compiler.target>
+</properties>
 ```
 
-### Get Jenkins Setup Password
+### Clean Build
+
 ```bash
-sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+mvnw.cmd clean package
 ```
 
-### Access Jenkins in Browser
-1. Open: `http://<EC2-Public-IP>:8080`
-2. Paste password
-3. Continue Setup
-4. Install Suggested Plugins
+### Verify
 
-### Install Plugins Manually (If missing)
-- Docker
-- Docker Pipeline
-- Blue Ocean
-- AWS Credentials Plugin
-
-### Restart Jenkins
 ```bash
-sudo systemctl restart jenkins
+java -version
 ```
 
-## 🎨 Web Interface Features
+## 📚 Additional Resources
 
-### User Experience
-- **Intuitive Design** - Easy-to-use interface for all skill levels
-- **Keyboard Shortcuts** - `Ctrl+Enter` to submit, `Escape` to clear
-- **Loading Indicators** - Visual feedback during operations
-- **Error Handling** - Comprehensive error messages and recovery
-- **Auto-refresh** - Optional automatic data refresh
+- [Spring Boot Documentation](https://spring.io/projects/spring-boot)
+- [Spring Data JPA Guide](https://spring.io/projects/spring-data-jpa)
+- [Docker Documentation](https://docs.docker.com/)
+- [Jenkins Documentation](https://www.jenkins.io/doc/)
+- [Prometheus Setup](https://prometheus.io/docs/prometheus/latest/getting_started/)
+- [Grafana Tutorials](https://grafana.com/tutorials/)
+- [SonarQube Setup](https://docs.sonarqube.org/latest/)
 
-### Responsive Design
-- **Desktop** - Full-featured interface with sidebar layout
-- **Tablet** - Optimized layout for medium screens
-- **Mobile** - Touch-friendly interface with stacked layout
+## 📝 Configuration Files
 
-## 🔐 Security Features
+### application.properties
 
-- **Input Validation** - Frontend and backend validation
-- **XSS Protection** - HTML escaping for user inputs
-- **CORS Configuration** - Controlled cross-origin access
-- **Error Handling** - Secure error messages without sensitive data
+Main configuration file for Spring Boot application:
+```properties
+# Server
+server.port=8080
+spring.application.name=employee-management
 
-## 🔧 Configuration
+# Database
+spring.datasource.url=jdbc:h2:mem:employeedb
+spring.jpa.hibernate.ddl-auto=create-drop
 
-### Environment Variables
-```bash
-export JAVA_HOME=/path/to/java
-export SPRING_PROFILES_ACTIVE=production
-export SERVER_PORT=8080
+# H2 Console
+spring.h2.console.enabled=true
+
+# Actuator
+management.endpoints.web.exposure.include=*
+management.endpoint.health.show-details=always
 ```
-
-### Application Profiles
-- **Default** - Development with H2 database
-- **Production** - Can be configured for external database
-- **Test** - Test-specific configurations
 
 ## 🤝 Contributing
 
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
-## 📝 License
+## 📄 License
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+This project is licensed under the MIT License - see LICENSE file for details.
 
-## 🆘 Support
+## 👤 Author
 
-For support and questions:
-- Create an issue in the repository
-- Check the H2 console for database-related issues
-- Verify Java version compatibility
-- Check application logs for error details
+- **Khushal Bhavsar**
+- GitHub: [@khushalbhavsar](https://github.com/khushalbhavsar)
 
-## 🚀 Future Enhancements
+## ❓ FAQ
 
-- **Authentication & Authorization** - User login and role-based access
-- **Database Migration** - Support for MySQL/PostgreSQL
-- **Advanced Search** - Complex filtering and sorting
-- **File Upload** - Employee photo and document management
-- **Reporting** - Export employees to PDF/Excel
-- **Audit Trail** - Track all data changes
-- **Performance Monitoring** - Application metrics and monitoring
+**Q: Can I use a different database?**  
+A: Yes! The application is designed to work with any relational database. Update dependencies and connection strings in `application.properties`.
+
+**Q: How do I deploy to production?**  
+A: Use Docker containers and orchestrate with Kubernetes or deploy to AWS ECS, Azure Container Instances, or similar.
+
+**Q: Is load balancing supported?**  
+A: Yes, containerize the app and place behind a load balancer (nginx, HAProxy, or cloud-native solutions).
+
+**Q: Can I integrate with a microservices architecture?**  
+A: Yes, the RESTful API design makes it suitable for microservices with proper API gateway configuration.
+
+**Q: How do I monitor in production?**  
+A: Use Prometheus for metrics collection and Grafana for visualization, or integrate with cloud monitoring services.
+
+---
+
+**Last Updated**: December 25, 2025  
+**Version**: 1.0.0

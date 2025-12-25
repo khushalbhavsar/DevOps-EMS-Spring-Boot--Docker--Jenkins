@@ -226,6 +226,120 @@ test-results/
 # Build tools
 .gradle/
 .mvn/
-mvnw
-mvnw.cmd
 gradle/wrapper/
+
+# Docker & Container
+.docker/
+*.swp
+docker-compose.override.yml
+Dockerfile.dev
+
+# Jenkins
+.jenkins/
+jenkins.log
+workspace/
+jobs/
+credentials.xml
+
+# Kubernetes & Orchestration
+*.kubeconfig
+kube-config
+.kube/
+
+# Terraform & IaC
+*.tfstate
+*.tfstate.*
+*.tfvars
+terraform/
+.terraform/
+terraform.log
+*.plan
+
+# Ansible
+*.retry
+ansible.log
+
+# Cloud CLI
+.azure/
+.aws/
+.gcp/
+gcloud-config
+
+# CI/CD
+.github/workflows/secrets
+.gitlab-ci.variables
+
+# Logs & Data
+logs/
+*.log.*
+app.log
+spring.log
+jenkins.log
+prometheus.log
+grafana.log
+docker-compose.log
+
+# Database
+*.db
+*.sqlite
+*.sqlite3
+*.h2.db
+
+# Metrics & Monitoring
+metrics/
+prometheus_data/
+grafana_data/
+prometheus_old/
+
+# System files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+.env.*.local
+
+# IDE specific
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+.factorypath
+*.sublime-project
+*.sublime-workspace
+
+# Build artifacts
+target/
+build/
+dist/
+out/
+bin/
+
+# Dependencies
+node_modules/
+vendor/
+.bundle/
+
+# Cache
+.cache/
+__pycache__/
+*.pyc
+
+# OS temp files
+tmp/
+temp/
+.tmp/
+
+# Application configs (sensitive)
+application-prod.properties
+application-production.properties
+.env.production
+secrets/
+private/
+credentials/

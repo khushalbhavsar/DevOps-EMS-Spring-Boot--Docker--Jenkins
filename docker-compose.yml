@@ -1,5 +1,4 @@
 # Docker Compose for Local Development with Monitoring
-version: '3.8'
 
 services:
   employee-management:

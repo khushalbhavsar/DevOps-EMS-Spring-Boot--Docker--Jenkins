@@ -170,12 +170,34 @@ pipeline {
                     echo "========================================"
                     echo "🚀 STAGE: Deploy Application"
                     echo "========================================"
-                    echo "🔄 Stopping existing containers..."
+                    echo "🔄 Stopping ALL existing containers on required ports..."
+                    sh '''
+                        # Stop any container using port 9000 (SonarQube)
+                        docker ps -q --filter "publish=9000" | xargs -r docker stop || true
+                        docker ps -aq --filter "publish=9000" | xargs -r docker rm -f || true
+                        
+                        # Stop any container using port 8080 (App)
+                        docker ps -q --filter "publish=8080" | xargs -r docker stop || true
+                        docker ps -aq --filter "publish=8080" | xargs -r docker rm -f || true
+                        
+                        # Stop any container using port 9090 (Prometheus)
+                        docker ps -q --filter "publish=9090" | xargs -r docker stop || true
+                        docker ps -aq --filter "publish=9090" | xargs -r docker rm -f || true
+                        
+                        # Stop any container using port 3000 (Grafana)
+                        docker ps -q --filter "publish=3000" | xargs -r docker stop || true
+                        docker ps -aq --filter "publish=3000" | xargs -r docker rm -f || true
+                        
+                        # Also stop any existing ems_java containers
+                        docker ps -aq --filter "name=ems_java" | xargs -r docker rm -f || true
+                    '''
+                    echo "🔄 Stopping existing docker-compose services..."
+                    sh 'docker compose down --remove-orphans || true'
                     echo "🔄 Starting new containers with docker-compose..."
                     sh '''
-                        docker compose down || true
                         docker compose up -d
                         echo "🔄 Verifying container status..."
+                        sleep 5
                         docker compose ps
                     '''
                     echo "✅ Application deployed successfully"
